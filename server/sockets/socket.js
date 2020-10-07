@@ -1,31 +1,19 @@
-const { socket } = require('../server')
+const { socket } = require('../server');
+const { TicketControl } = require('../classes/ticket-control')
+
+let ticketControl = new TicketControl();
 
 socket.on('connection', (client) => {
-    console.log('Conectado desde el back');
 
-    client.emit('welcome', {
-        user: 'Admin',
-        message: 'Bienvenido a la aplicación'
+    client.on('nextTicket', (data, callback) => {
+        let next = ticketControl.nextTicket();
+        console.log(next);
+        callback(next);
     });
 
-    client.on('disconnect', () => {
-        console.log('Desconexión desde el back');
+    //Emitir el evento que me muestre el ultimo ticket
+    client.emit('actualTicket', {
+        actual: ticketControl.actualTicket()
     });
 
-    client.on('send', (data, callback) => {
-        console.log(data);
-
-        client.broadcast.emit('welcome', data)
-
-        // if (message.user) {
-        //     callback({
-        //         resp: 'Mensaje recibido'
-        //     });
-        // } else {
-        //     callback({
-        //         resp: 'Error: no se recibio ningún mensaje'
-        //     });
-        // }
-
-    })
 });
